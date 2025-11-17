@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Kumpulan video lucu terbaik - hehehe.id" />
+  <title>hehehe.id - Video Lucu Terbaik (Secure)</title>
+
+  <!-- Minimal, conservative Content-Security-Policy as meta (set as header for best effect) -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' https://www.youtube.com https://player.vimeo.com; connect-src 'self' https://gist.githubusercontent.com https://raw.githubusercontent.com; frame-src https://www.youtube.com https://player.vimeo.com https://streamtape.com https://drive.google.com https://*; img-src 'self' data:; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'; frame-ancestors 'none';">
+
+  <style>
+    /* (trimmed for brevity in editor) */
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#fff;--muted:#5f6368;--text:#202124}
+    [data-theme="dark"]{--bg:#111;--muted:#b3b3b3;--text:#e8e8e8}
+    body{font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--text);line-height:1.5}
+    .header-wrapper{padding:12px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e6e6e6}
+    .logo{font-weight:700;font-size:20px;text-decoration:none;color:inherit}
+    .post-container{max-width:1100px;margin:30px auto;padding:0 16px}
+    .video-wrapper{background:#000;border-radius:8px;overflow:hidden;min-height:360px;display:flex;align-items:center;justify-content:center}
+    .loading-message{padding:40px;text-align:center;color:var(--muted)}
+    .tab-btn{padding:10px 16px;border-radius:8px;border:1px solid #ddd;background:var(--bg);cursor:pointer;margin:6px}
+    .next-video-btn{padding:10px 16px;border-radius:8px;background:linear-gradient(45deg,#FF6B6B,#4ECDC4);color:#fff;border:none;cursor:pointer}
+    .age-verification-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:9999}
+    .age-verification-modal{background:var(--bg);padding:28px;border-radius:12px;max-width:420px;width:92%;text-align:center}
+    .age-btn{padding:10px 18px;border-radius:8px;border:0;cursor:pointer;margin:6px}
+  </style>
+</head>
+
+<body>
+  <!-- Age verification modal -->
+  <div class="age-verification-overlay" id="modalNotice" style="display:flex">
+    <div class="age-verification-modal" role="dialog" aria-modal="true">
+      <h2 id="noticeTitle">Konten ini tidak untuk anak di bawah umur.</h2>
+      <p id="noticeDescription">Harap bijak saat mengakses konten ini.</p>
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:14px">
+        <button class="age-btn" id="continueBtn">Agree</button>
+        <button class="age-btn" id="confirmBtn">Accept</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="header-wrapper">
+    <a class="logo" href="/">hehehe.id</a>
+    <div>
+      <a class="tab-btn" href="/">Home</a>
+      <a class="tab-btn" href="/pasang-iklan.html">Pasang Iklan</a>
+    </div>
+  </div>
+
+  <main class="post-container">
+    <article id="homepageVideo">
+      <div class="loading-message">Memuat video...</div>
+    </article>
+
+    <div style="text-align:center;margin-top:18px">
+      <button class="next-video-btn" id="nextRandomBtn">🔀 Video Random Berikutnya</button>
+    </div>
+  </main>
+
+  <footer style="text-align:center;padding:30px 0;color:var(--muted)">Copyright © <span id="year"></span> hehehe.id</footer>
+
+  <script>
+  /* ====== SECURE, AUTO-ALLOW HTTPS VERSION ====== */
+
+  // CONFIG
+  const HOMEPAGE_PLAYLIST = 'https://gist.githubusercontent.com/lihatlive01-sudo/5e3ba9c9392793aa815941cdec58459c/raw/2d4d8745d4246cb68f2f1dd64c05a8191f5be352/playlist.txt';
+  const COLLECTION_GIST_URLS = {
+    'bapak-core': 'https://gist.githubusercontent.com/lihatlive01-sudo/3aaa2daa010f96676a96e601ad194a86/raw/09b36d9f4df588e732d1b27b91458cba6748e42b/halaman%25202',
+    'arab-kocak': 'https://gist.githubusercontent.com/lihatlive01-sudo/869721f437c8b3e0ba6651625ff46a02/raw/68dfc9563a9496a9e7d5fd1d5b1efc3a3a4707f6/halaman%25201',
+    'funny-people': HOMEPAGE_PLAYLIST
+  };
+
+  // Smartlink: allowed external host for auto-open
+  const SMARTLINK_URL = 'https://www.effectivegatecpm.com/vsft88c6?key=2fad6f717c5d155f438ee18cb2aea5cf';
+  const ALLOWED_EXTERNAL_HOSTS = new Set(['effectivegatecpm.com','www.effectivegatecpm.com']);
+
+  // Timers for age modal + auto-open behavior (kept but safe)
+  const AUTO_REDIRECT_DELAY = 5000; // 5s before auto-open when modal shown
+  const MODAL_RECURRING_INTERVAL = 180000; // 3 minutes
+  let autoRedirectTimer = null;
+  let modalRecurringTimer = null;
+
+  // UTILITIES
+  function isValidHttpUrl(value) {
+    try {
+      const url = new URL(value);
+      if (url.protocol !== 'https:') return false;
+      // disallow javascript: data: file: etc by protocol check above
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function safeSetText(el, text){ if(!el) return; el.textContent = String(text); }
+
+  function decodeSafeBase64(b64){
+    try{
+      if(!/^[A-Za-z0-9+/=\s]+$/.test(b64)) return null;
+      const cleaned = b64.replace(/\s+/g,'');
+      const decoded = atob(cleaned);
+      if(/[<>]/.test(decoded)) return null;
+      return decoded;
+    }catch(e){return null}
+  }
+
+  function safeOpenExternal(rawUrl){
+    if(!isValidHttpUrl(rawUrl)) return false;
+    try{
+      const u = new URL(rawUrl);
+      const host = u.hostname.toLowerCase();
+      let ok=false; for(const h of ALLOWED_EXTERNAL_HOSTS){ if(host===h||host.endsWith('.'+h)){ok=true;break} }
+      if(!ok) return false;
+      window.open(u.href,'_blank','noopener,noreferrer');
+      return true;
+    }catch(e){return false}
+  }
+
+  // Validate playlist lines: accept either iframe HTML whose src is https OR any https URL string
+  function validatePlaylistArray(lines){
+    const out = [];
+    if(!Array.isArray(lines)) return out;
+    for(const raw of lines){
+      const line = String(raw||'').trim(); if(!line) continue;
+      // iframe tag detection
+      const iframeMatch = line.match(/<iframe[^>]*src=["']([^"']+)["'][^>]*>/i);
+      if(iframeMatch){ const src = iframeMatch[1]; if(isValidHttpUrl(src)) out.push(src); continue; }
+      // plain URL
+      if(isValidHttpUrl(line)) out.push(line);
+    }
+    // remove exact duplicates while preserving order
+    return [...new Set(out)];
+  }
+
+  // SAFE RENDER: builds DOM nodes without inserting untrusted HTML
+  function safeRenderHomepageVideo(videoUrl, playlist=[], category=null){
+    const container = document.getElementById('homepageVideo'); if(!container) return;
+    container.innerHTML='';
+    if(!isValidHttpUrl(videoUrl)){
+      const msg=document.createElement('div'); msg.className='loading-message'; safeSetText(msg,'Video tidak valid atau diblokir.'); container.appendChild(msg); return;
+    }
+
+    const wrapper = document.createElement('div'); wrapper.className='video-wrapper';
+
+    // If URL looks like a page (may be embed) we use iframe; otherwise try video element
+    // We'll treat all https URLs as embeddable via iframe to maximize compatibility with hosts like /e/xxxx
+    const iframe = document.createElement('iframe');
+    iframe.setAttribute('src', videoUrl);
+    iframe.setAttribute('frameborder','0');
+    iframe.setAttribute('allow','accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+    iframe.setAttribute('allowfullscreen','');
+    iframe.style.width='100%'; iframe.style.height='480px';
+    wrapper.appendChild(iframe);
+
+    container.appendChild(wrapper);
+
+    // store validated playlist safely
+    if(Array.isArray(playlist) && playlist.length>0){
+      try{ sessionStorage.setItem('currentPlaylist', JSON.stringify(playlist)); }
+      catch(e){ console.warn('sessionStorage unavailable',e); }
+      if(category) try{ sessionStorage.setItem('currentCategory', category); }catch(e){}
+    }
+  }
+
+  // FETCH + PLAY
+  async function fetchAndValidatePlaylist(gistUrl){
+    try{
+      if(!isValidHttpUrl(gistUrl)) throw new Error('invalid url');
+      const resp = await fetch(gistUrl,{cache:'no-store'});
+      if(!resp.ok) throw new Error('network '+resp.status);
+      const text = await resp.text();
+      const lines = text.split('\n');
+      return validatePlaylistArray(lines);
+    }catch(e){ console.warn('fetch playlist failed',e); return []; }
+  }
+
+  async function loadHomepageVideo(){
+    const list = await fetchAndValidatePlaylist(HOMEPAGE_PLAYLIST);
+    if(list.length>0){ const idx=Math.floor(Math.random()*list.length); safeRenderHomepageVideo(list[idx],list,null); }
+    else{ const c=document.getElementById('homepageVideo'); c.innerHTML=''; const m=document.createElement('div'); m.className='loading-message'; safeSetText(m,'Tidak ada video tersedia'); c.appendChild(m); }
+  }
+
+  async function loadPlaylistAndPlay(gistUrl,category){
+    const list = await fetchAndValidatePlaylist(gistUrl);
+    if(list.length>0){ sessionStorage.setItem('currentPlaylist',JSON.stringify(list)); sessionStorage.setItem('currentCategory',category); const idx=Math.floor(Math.random()*list.length); safeRenderHomepageVideo(list[idx],list,category); history.replaceState(null,null,' ');
+    } else { const c=document.getElementById('homepageVideo'); c.innerHTML=''; const m=document.createElement('div'); m.className='loading-message'; safeSetText(m,'Gagal memuat video'); c.appendChild(m); }
+  }
+
+  function playNextRandomVideoFromHomepage(){
+    const playlistData = sessionStorage.getItem('currentPlaylist');
+    if(playlistData){ try{ const p = JSON.parse(playlistData); const safe = validatePlaylistArray(p); if(!safe.length){ alert('Playlist tidak tersedia.'); return; } const idx=Math.floor(Math.random()*safe.length); safeRenderHomepageVideo(safe[idx],safe,sessionStorage.getItem('currentCategory')); window.scrollTo({top:0,behavior:'smooth'}); }catch(e){ console.warn(e); alert('Playlist error.'); } }
+    else{ loadHomepageVideo(); }
+  }
+
+  // Age modal handlers - we keep recurring modal and auto-open of SMARTLINK but only to allowed host
+  function handleNoticeResponse(){
+    // auto open the SMARTLINK only if host allowed
+    if(!safeOpenExternal(SMARTLINK_URL)){
+      console.warn('smartlink blocked or not allowed');
+    }
+    const modal = document.getElementById('modalNotice'); if(modal) modal.style.display='none'; sessionStorage.setItem('noticeAcknowledged','true');
+  }
+
+  function showNoticeModal(){
+    if(sessionStorage.getItem('noticeAcknowledged')==='true') return; const modal=document.getElementById('modalNotice'); if(modal) modal.style.display='flex';
+    // start auto-open timer (if SMARTLINK allowed)
+    if(autoRedirectTimer) clearTimeout(autoRedirectTimer);
+    autoRedirectTimer = setTimeout(()=>{ safeOpenExternal(SMARTLINK_URL); }, AUTO_REDIRECT_DELAY);
+  }
+
+  function startRecurringNoticeModal(){ if(modalRecurringTimer) clearInterval(modalRecurringTimer); modalRecurringTimer = setInterval(()=>{ showNoticeModal(); }, MODAL_RECURRING_INTERVAL); }
+
+  // Init and event wiring
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  document.addEventListener('DOMContentLoaded', async function(){
+    // language detection (simple)
+    const userLang = (navigator.language||'').toLowerCase(); if(userLang.includes('id')){ safeSetText(document.getElementById('noticeTitle'),'Apakah kamu berusia 18 tahun atau lebih?'); safeSetText(document.getElementById('noticeDescription'),'Harap bersikap bijak saat mengakses konten ini. Jaga volume dan layar agar tidak mengganggu orang lain.'); document.getElementById('continueBtn').textContent='Setuju'; document.getElementById('confirmBtn').textContent='Terima'; }
+
+    // show modal first time and start recurring
+    showNoticeModal(); startRecurringNoticeModal();
+
+    // initial playlist loading or hash handling
+    const hash = window.location.hash || '';
+    if(hash.startsWith('#play-')){
+      const category = hash.replace('#play-',''); const gist = COLLECTION_GIST_URLS[category]; if(gist) await loadPlaylistAndPlay(gist,category); else await loadHomepageVideo(); history.replaceState(null,null,' ');
+    } else if(hash.startsWith('#dl=')){
+      const b64 = hash.slice(4).replace(/\s+/g,''); const decoded = decodeSafeBase64(b64); if(decoded && isValidHttpUrl(decoded)) safeRenderHomepageVideo(decoded); else await loadHomepageVideo(); history.replaceState(null,null,' ');
+    } else { await loadHomepageVideo(); }
+
+    // wire buttons
+    document.getElementById('continueBtn').addEventListener('click',function(e){ e.preventDefault(); handleNoticeResponse(); });
+    document.getElementById('confirmBtn').addEventListener('click',function(e){ e.preventDefault(); handleNoticeResponse(); });
+    document.getElementById('nextRandomBtn').addEventListener('click', function(){ playNextRandomVideoFromHomepage(); });
+  });
+
+  </script>
+</body>
+</html>
