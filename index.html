@@ -1,12 +1,13 @@
-<!-- index1.05.html — Fully fixed playlist routing + Eksib/Hijab working -->
+<!-- index1.06.html — Stealth + Secure + Collections + Dark/Light + HashChange FIX -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="hehehe.id - Stealth Secure Player" />
-  <title>hehehe.id — index1.05</title>
+  <title>hehehe.id — index1.06</title>
 
+  <!-- CSP Stealth Mode -->
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; connect-src 'self' https:; frame-src https:; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'; frame-ancestors *;">
 
@@ -36,7 +37,7 @@
 </head>
 <body>
 
-<!-- MODAL -->
+<!-- MODAL NOTICE -->
 <div class="modal-overlay" id="modalNotice" style="display:flex">
   <div class="modal">
     <h2>Dengan melanjutkan dosa ditanggung sendiri-sendiri</h2>
@@ -47,6 +48,7 @@
 </div>
 <button id="themeToggle" style="position:fixed;bottom:20px;right:20px;padding:10px 14px;border-radius:8px;border:1px solid #ccc;cursor:pointer">🌓 Mode</button>
 
+<!-- HEADER -->
 <header class="header">
   <a class="logo" href="/">hehehe.id</a>
   <nav class="nav">
@@ -57,6 +59,7 @@
   </nav>
 </header>
 
+<!-- CONTENT -->
 <main class="container">
   <article id="videoBox"><div class="loading">Memuat video...</div></article>
   <div style="text-align:center;margin-top:18px">
@@ -70,44 +73,48 @@
 (function(){
   'use strict';
 
-  /* ============================ */
-  /* CONFIG FIXED FINAL           */
-  /* ============================ */
-  const HOMEPAGE = "https://gist.githubusercontent.com/lihatlive01-sudo/5e3ba9c9392793aa815941cdec58459c/raw/c0e9586b6633d45112cfc023899c8e83b6d89df1/playlist.txt";
-
+  /* PLAYLIST CONFIG */
+  const HOMEPAGE = "https://gist.githubusercontent.com/lihatlive01-sudo/5e3ba9c9392793aa815941cdec58459c/raw/2d4d8745d4246cb68f2f1dd64c05a8191f5be352/playlist.txt";
   const COLLECTIONS = {
-      "eksib": "https://gist.githubusercontent.com/lihatlive01-sudo/3aaa2daa010f96676a96e601ad194a86/raw/e7ffd6cfd7ce688c9a8bde0ab35862bdbb0ec6c5/halaman2.txt",
-      "hijab": "https://gist.githubusercontent.com/lihatlive01-sudo/869721f437c8b3e0ba6651625ff46a02/raw/3491bf0508a08630411d73abea3d456adb990b33/halaman1.txt",
-      "funny-people": HOMEPAGE
-    };
+    "eksib": "https://gist.githubusercontent.com/lihatlive01-sudo/3aaa2daa010f96676a96e601ad194a86/raw/e7ffd6cfd7ce688c9a8bde0ab35862bdbb0ec6c5/halaman2.txt",
+    "hijab": "https://gist.githubusercontent.com/lihatlive01-sudo/869721f437c8b3e0ba6651625ff46a02/raw/3491bf0508a08630411d73abea3d456adb990b33/halaman1.txt"
+  };
 
+  /* SMARTLINK */
   const SMARTLINK = "https://www.effectivegatecpm.com/vsft88c6?key=2fad6f717c5d155f438ee18cb2aea5cf";
   const ALLOWED = new Set();
-
   function allowHost(url){ try{ const u=new URL(url); ALLOWED.add(u.hostname);}catch{} }
   allowHost(SMARTLINK);
 
-  function safeOpen(url){ try{ const u=new URL(url); if(!ALLOWED.has(u.hostname)) return false; window.open(url,"_blank","noopener,noreferrer"); return true;}catch{return false;} }
+  /* UTILS */
+  function isHTTPS(x){ try{ return new URL(x).protocol === "https:";}catch{return false;} }
+  function decodeB64(x){ try{ const d=atob(x); return /[<>]/.test(d)?null:d; }catch{return null;} }
 
-  function isHTTPS(x){ try{ return new URL(x).protocol==="https:";}catch{return false;} }
-  function decodeB64(x){ try{ const d=atob(x); return /[<>]/.test(d)?null:d;}catch{return null;} }
+  function safeOpen(url){
+    try{
+      const u=new URL(url);
+      if(!ALLOWED.has(u.hostname)) return false;
+      window.open(url,"_blank","noopener,noreferrer");
+      return true;
+    }catch{return false;}
+  }
 
   async function fetchList(url){
     try{
-      const t = await (await fetch(url,{cache:'no-store'})).text();
-      const arr = t.split("\n").map(s=>s.trim()).filter(isHTTPS);
+      const txt = await (await fetch(url,{cache:'no-store'})).text();
+      const arr = txt.split("\n").map(s=>s.trim()).filter(isHTTPS);
       arr.forEach(allowHost);
       return [...new Set(arr)];
     }catch{return []}
   }
 
   function render(url,list=[],cat=null){
-    const box = document.getElementById("videoBox");
+    const box=document.getElementById("videoBox");
     box.innerHTML="";
-
     if(!isHTTPS(url)){ box.innerHTML="<div class='loading'>Video tidak valid</div>"; return; }
 
-    const wrap = document.createElement("div"); wrap.className="video-frame";
+    const wrap=document.createElement("div");
+    wrap.className="video-frame";
     const iframe=document.createElement("iframe");
     iframe.src=url;
     iframe.allow="accelerometer; autoplay; encrypted-media; picture-in-picture";
@@ -117,44 +124,45 @@
     wrap.appendChild(iframe);
     box.appendChild(wrap);
 
-    if(list.length) sessionStorage.setItem("currentPlaylist", JSON.stringify(list));
+    if(list.length) sessionStorage.setItem("currentPlaylist",JSON.stringify(list));
     if(cat) sessionStorage.setItem("currentCategory",cat);
   }
 
   async function loadHome(){
-    const L = await fetchList(HOMEPAGE);
+    const L=await fetchList(HOMEPAGE);
     if(L.length) render(L[Math.floor(Math.random()*L.length)],L);
   }
 
   async function loadCat(cat){
     const url = COLLECTIONS[cat];
-    if(!url){ await loadHome(); return; }
-
-    const L = await fetchList(url);
-    if(L.length){ render(L[Math.floor(Math.random()*L.length)],L,cat); return; }
-
-    await loadHome();
+    if(!url) return loadHome();
+    const L=await fetchList(url);
+    if(L.length) render(L[Math.floor(Math.random()*L.length)],L,cat);
+    else loadHome();
   }
 
   function nextVid(){
     const d=sessionStorage.getItem("currentPlaylist");
-    if(!d){ loadHome(); return; }
-
+    if(!d) return loadHome();
     try{
-      const L = JSON.parse(d);
+      const L=JSON.parse(d);
       render(L[Math.floor(Math.random()*L.length)],L);
-    }catch{
-      loadHome();
-    }
+    }catch{loadHome();}
   }
 
   /* MODAL */
-  function openModal(){ document.getElementById("modalNotice").style.display="flex"; setTimeout(()=>safeOpen(SMARTLINK),5000); }
-  function closeModal(){ document.getElementById("modalNotice").style.display="none"; sessionStorage.setItem("noticeAck","true"); safeOpen(SMARTLINK); }
+  function openModal(){
+    document.getElementById("modalNotice").style.display="flex";
+    setTimeout(()=>safeOpen(SMARTLINK),5000);
+  }
+
+  function closeModal(){
+    document.getElementById("modalNotice").style.display="none";
+    sessionStorage.setItem("noticeAck","true");
+    safeOpen(SMARTLINK);
+  }
 
   setInterval(openModal,180000);
-
-  document.getElementById("year").textContent = new Date().getFullYear();
 
   /* THEME */
   (function(){
@@ -168,32 +176,36 @@
     };
   })();
 
-  /* INITIAL LOAD */
-  document.addEventListener("DOMContentLoaded", async ()=>{
-    if(sessionStorage.getItem("noticeAck") !== 'true') openModal();
-
-    const hash = location.hash;
-
-    if(hash.startsWith('#play-')){
-      const cat = hash.replace('#play-','');
-      await loadCat(cat);
-      history.replaceState(null, null, ' ');
+  /* HASHCHANGE FIX */
+  window.addEventListener("hashchange", function(){
+    const h=location.hash;
+    if(h.startsWith("#play-")){
+      const cat=h.replace("#play-",""
+      );
+      loadCat(cat);
     }
-    else if(hash.startsWith('#dl=')){
-      const d = decodeB64(hash.slice(4));
-      if(d && isHTTPS(d)) render(d);
-      else await loadHome();
-      history.replaceState(null, null, ' ');
-    }
-    else{
-      await loadHome();
-    }
-
-    document.getElementById("continueBtn").onclick = closeModal;
-    document.getElementById("confirmBtn").onclick = closeModal;
-    document.getElementById("nextRandomBtn").onclick = nextVid;
   });
 
+  document.addEventListener("DOMContentLoaded", async ()=>{
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    if(sessionStorage.getItem("noticeAck")!=="true") openModal();
+
+    const h=location.hash;
+    if(h.startsWith('#play-')){
+      const cat=h.replace('#play-','');
+      await loadCat(cat);
+      history.replaceState(null,null,' ');
+    } else if(h.startsWith('#dl=')){
+      const d=decodeB64(h.slice(4));
+      if(d&&isHTTPS(d)) render(d); else await loadHome();
+      history.replaceState(null,null,' ');
+    } else await loadHome();
+
+    document.getElementById("continueBtn").onclick=closeModal;
+    document.getElementById("confirmBtn").onclick=closeModal;
+    document.getElementById("nextRandomBtn").onclick=nextVid;
+  });
 })();
 </script>
 </body>
