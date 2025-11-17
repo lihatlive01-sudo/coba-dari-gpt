@@ -1,3 +1,6 @@
+<!-- index1.071.html (clone of 1.07 for continuation) -->
+<!-- Silakan lanjutkan edit di sini; isi awal disalin dari Index1 (1.07) -->
+
 <!-- index1.07.html — Full complete build (fixed modal) -->
 <!DOCTYPE html>
 <html lang="id">
@@ -5,7 +8,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="hehehe.id - Stealth Secure Player" />
-  <title>hehehe.id — index1.07</title>
+  <title>hehehe.id — index1.071</title>
 
   <!-- CSP: use meta for convenience; move to _headers for strict server-side enforcement -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; connect-src 'self' https:; frame-src https:; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'; frame-ancestors *;">
@@ -106,72 +109,4 @@
   function safeOpen(url){ try{ if(!isHTTPS(url)) return false; const host = new URL(url).hostname.toLowerCase(); if(!ALLOWED.has(host) && !Array.from(ALLOWED).some(h=>host.endsWith('.'+h))) return false; window.open(url,'_blank','noopener,noreferrer'); return true; }catch(e){return false;} }
 
   /* ========== FETCH + PARSE PLAYLIST ========== */
-  async function fetchText(url){ try{ const r = await fetch(url,{cache:'no-store'}); if(!r.ok) throw new Error('network'); return await r.text(); }catch(e){ console.warn('fetch failed',url,e); return ''; } }
-
-  function parsePlaylist(txt){ if(!txt) return []; const lines = txt.split('
-').map(s=>s.trim()).filter(Boolean); const out = []; for(const line of lines){ const m = line.match(/<iframe[^>]*src=["']([^"']+)["'][^>]*>/i); if(m && isHTTPS(m[1])) out.push(m[1]); else if(isHTTPS(line)) out.push(line); } return [...new Set(out)]; }
-
-  async function loadPlaylist(url){ const txt = await fetchText(url); const list = parsePlaylist(txt); list.forEach(allowHost); return list; }
-
-  /* ========== RENDER SAFE ========== */
-  const videoBox = document.getElementById('videoBox');
-
-  function clearBox(){ videoBox.innerHTML = ''; }
-
-  function renderUrl(url, playlist=[], category=null){ clearBox(); if(!isHTTPS(url)){ const m = document.createElement('div'); m.className='loading'; m.textContent='Video diblokir atau tidak valid'; videoBox.appendChild(m); return; }
-    const wrap = document.createElement('div'); wrap.className='video-frame'; const ifr = document.createElement('iframe'); ifr.setAttribute('src', url); ifr.setAttribute('frameborder','0'); ifr.setAttribute('allow','accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'); ifr.setAttribute('allowfullscreen',''); ifr.style.width='100%'; ifr.style.height='100%'; wrap.appendChild(ifr); videoBox.appendChild(wrap);
-    if(Array.isArray(playlist) && playlist.length) try{ sessionStorage.setItem('currentPlaylist', JSON.stringify(playlist)); if(category) sessionStorage.setItem('currentCategory', category); }catch(e){}
-  }
-
-  async function playRandomFrom(url){ const list = await loadPlaylist(url); if(list.length) renderUrl(list[Math.floor(Math.random()*list.length)], list); else { clearBox(); const m = document.createElement('div'); m.className='loading'; m.textContent='Tidak ada video tersedia'; videoBox.appendChild(m); } }
-
-  async function playCategory(cat){ const url = COLLECTIONS[cat]; if(!url) return playRandomFrom(HOMEPAGE); const list = await loadPlaylist(url); if(list.length) renderUrl(list[Math.floor(Math.random()*list.length)], list, cat); else playRandomFrom(HOMEPAGE); }
-
-  async function playHome(){ await playRandomFrom(HOMEPAGE); }
-
-  function playNextFromSession(){ try{ const s = sessionStorage.getItem('currentPlaylist'); if(!s) return playHome(); const arr = JSON.parse(s); if(!Array.isArray(arr) || !arr.length) return playHome(); renderUrl(arr[Math.floor(Math.random()*arr.length)], arr); }catch(e){ playHome(); } }
-
-  /* ========== MODAL BEHAVIOUR (FIXED) ========== */
-  function openModal(){ // guard: if user already acknowledged, do not show (prevents Home clicks from triggering)
-    try{ if(sessionStorage.getItem('noticeAck') === 'true') return; }catch(e){}
-    const el = document.getElementById('modalNotice'); if(el) el.style.display = 'flex'; setTimeout(()=> safeOpen(SMARTLINK), 5000);
-  }
-
-  function closeModal(){ try{ const el=document.getElementById('modalNotice'); if(el) el.style.display='none'; sessionStorage.setItem('noticeAck','true'); }catch(e){} safeOpen(SMARTLINK); }
-
-  /* recurring every 3 minutes regardless of acknowledgement status, but openModal itself checks noticeAck */
-  setInterval(openModal, 180000);
-
-  /* ========== HASHCHANGE listener so navigation updates without reload ========== */
-  window.addEventListener('hashchange', function(){ const h = location.hash || ''; if(h.startsWith('#play-')){ const cat = h.replace('#play-',''); playCategory(cat); } });
-
-  /* ========== INITIALIZE ========== */
-  document.getElementById('year').textContent = new Date().getFullYear();
-
-  // Theme toggle (persisted)
-  (function(){ const root = document.documentElement; const s = localStorage.getItem('theme'); if(s) root.setAttribute('data-theme', s); const btn = document.getElementById('adsBtn'); /* adsBtn exists in header; used only for CTA, not theme */ })();
-
-  document.addEventListener('DOMContentLoaded', async function(){
-    // show modal only if not acknowledged (prevents F5 or clicking Home from re-showing)
-    if(sessionStorage.getItem('noticeAck') !== 'true') openModal();
-
-    const h = location.hash || '';
-    if(h.startsWith('#play-')){ const cat = h.replace('#play-',''); await playCategory(cat); history.replaceState(null, null, ' '); }
-    else if(h.startsWith('#dl=')){ const dec = decodeB64(h.slice(4)); if(dec && isHTTPS(dec)) renderUrl(dec); else await playHome(); history.replaceState(null,null,' '); }
-    else await playHome();
-
-    // Wire buttons
-    document.getElementById('continueBtn').addEventListener('click', function(e){ e.preventDefault(); closeModal(); });
-    document.getElementById('confirmBtn').addEventListener('click', function(e){ e.preventDefault(); closeModal(); });
-    document.getElementById('nextRandomBtn').addEventListener('click', function(e){ e.preventDefault(); playNextFromSession(); });
-
-    // nav buttons: ensure they trigger hashchange logic even on single-page navigation
-    document.getElementById('navEksib').addEventListener('click', function(){ setTimeout(()=>{ const h = location.hash || ''; if(h.startsWith('#play-')){ const cat = h.replace('#play-',''); playCategory(cat); } }, 10); });
-    document.getElementById('navHijab').addEventListener('click', function(){ setTimeout(()=>{ const h = location.hash || ''; if(h.startsWith('#play-')){ const cat = h.replace('#play-',''); playCategory(cat); } }, 10); });
-
-  });
-
-})();
-</script>
-</body>
-</html>
+  async function fetchText(url){ try{ const r = await fetch(url,{cache:'no-store'}); if(!
