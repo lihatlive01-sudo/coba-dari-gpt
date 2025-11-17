@@ -1,11 +1,12 @@
-<!-- index1.03.html — Stealth + Secure + Collections + Dark/Light Toggle -->
+<!-- index1.04.html — duplicate of 1.03 for next edits -->
+<!-- Paste of index1.03; ready for next modifications -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="hehehe.id - Stealth Secure Player" />
-  <title>hehehe.id — index1.03</title>
+  <title>hehehe.id — index1.04</title>
 
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; connect-src 'self' https:; frame-src https:; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'; frame-ancestors *;">
@@ -36,7 +37,7 @@
 </head>
 <body>
 
-<!-- MODAL NOTICE + THEME BUTTON -->
+<!-- MODAL -->
 <div class="modal-overlay" id="modalNotice" style="display:flex">
   <div class="modal">
     <h2>Dengan melanjutkan dosa ditanggung sendiri-sendiri</h2>
@@ -47,7 +48,6 @@
 </div>
 <button id="themeToggle" style="position:fixed;bottom:20px;right:20px;padding:10px 14px;border-radius:8px;border:1px solid #ccc;cursor:pointer">🌓 Mode</button>
 
-<!-- HEADER -->
 <header class="header">
   <a class="logo" href="/">hehehe.id</a>
   <nav class="nav">
@@ -58,7 +58,6 @@
   </nav>
 </header>
 
-<!-- CONTENT -->
 <main class="container">
   <article id="videoBox"><div class="loading">Memuat video...</div></article>
   <div style="text-align:center;margin-top:18px">
@@ -72,12 +71,11 @@
 (function(){
   'use strict';
 
-  /* CONFIG */
   const HOMEPAGE = "https://gist.githubusercontent.com/lihatlive01-sudo/5e3ba9c9392793aa815941cdec58459c/raw/playlist.txt";
   const COLLECTIONS = {
       "eksib": "https://gist.githubusercontent.com/lihatlive01-sudo/3aaa2daa010f9/raw/halaman2.txt",
       "hijab": "https://gist.githubusercontent.com/lihatlive01-sudo/869721f437c8/raw/halaman1.txt",
-      "funny-people": HOMEPAGE_PLAYLIST
+      "funny-people": HOMEPAGE
     };
 
   const SMARTLINK = "https://www.effectivegatecpm.com/vsft88c6?key=2fad6f717c5d155f438ee18cb2aea5cf";
@@ -125,7 +123,6 @@
 
   function nextVid(){ const d=sessionStorage.getItem("currentPlaylist"); if(!d) return loadHome(); try{ const L=JSON.parse(d); render(L[Math.floor(Math.random()*L.length)],L);}catch{loadHome();} }
 
-  /* MODAL */
   function openModal(){ document.getElementById("modalNotice").style.display="flex"; setTimeout(()=>safeOpen(SMARTLINK),5000); }
   function closeModal(){ document.getElementById("modalNotice").style.display="none"; sessionStorage.setItem("noticeAck","true"); safeOpen(SMARTLINK); }
 
@@ -133,32 +130,40 @@
 
   document.getElementById("year").textContent = new Date().getFullYear();
 
-  /* THEME */
   (function(){
     const root=document.documentElement;
     const s=localStorage.getItem('theme');
     if(s) root.setAttribute('data-theme',s);
-    document.getElementById('themeToggle').onclick=function(){
-      const cur=root.getAttribute('data-theme')==='dark'?'light':'dark';
-      root.setAttribute('data-theme',cur);
-      localStorage.setItem('theme',cur);
+    document.getElementById('themeToggle').onclick = function(){
+      const cur = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', cur);
+      localStorage.setItem('theme', cur);
     };
   })();
 
+  /* INITIAL LOAD */
   document.addEventListener("DOMContentLoaded", async ()=>{
-    if(sessionStorage.getItem("noticeAck")!=='true') openModal();
+    if(sessionStorage.getItem("noticeAck") !== 'true') openModal();
 
-    const h=location.hash;
-    if(h.startsWith('#play-')){
-      const cat=h.replace('#play-',''); await loadCat(cat); history.replaceState(null,null,' ');
-    } else if(h.startsWith('#dl=')){
-      const d=decodeB64(h.slice(4)); if(d&&isHTTPS(d)) render(d); else await loadHome(); history.replaceState(null,null,' ');
-    } else await loadHome();
+    const hash = location.hash;
+    if(hash.startsWith('#play-')){
+      const cat = hash.replace('#play-','');
+      await loadCat(cat);
+      history.replaceState(null, null, ' ');
+    } else if(hash.startsWith('#dl=')){
+      const d = decodeB64(hash.slice(4));
+      if(d && isHTTPS(d)) render(d);
+      else await loadHome();
+      history.replaceState(null, null, ' ');
+    } else {
+      await loadHome();
+    }
 
-    document.getElementById("continueBtn").onclick=closeModal;
-    document.getElementById("confirmBtn").onclick=closeModal;
-    document.getElementById("nextRandomBtn").onclick=nextVid;
+    document.getElementById("continueBtn").onclick = closeModal;
+    document.getElementById("confirmBtn").onclick = closeModal;
+    document.getElementById("nextRandomBtn").onclick = nextVid;
   });
+
 })();
 </script>
 </body>
