@@ -8,7 +8,8 @@
 
   <!-- Minimal, conservative Content-Security-Policy as meta (set as header for best effect) -->
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' https://www.youtube.com https://player.vimeo.com; connect-src 'self' https://gist.githubusercontent.com https://raw.githubusercontent.com; frame-src https://www.youtube.com https://player.vimeo.com https://streamtape.com https://drive.google.com https://*; img-src 'self' data:; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'; frame-ancestors 'none';">
+        content="default-src 'self'; script-src 'self' https://www.youtube.com https://player.vimeo.com https://www.effectivegatecpm.com https://effectivegatecpm.com; connect-src 'self' https://gist.githubusercontent.com https://raw.githubusercontent.com https://www.effectivegatecpm.com; frame-src https://www.youtube.com https://player.vimeo.com https://streamtape.com https://drive.google.com https://www.effectivegatecpm.com https://*; img-src 'self' data:; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'; frame-ancestors 'none';">
+  
 
   <style>
     /* (trimmed for brevity in editor) */
@@ -197,11 +198,14 @@
 
   // Age modal handlers - we keep recurring modal and auto-open of SMARTLINK but only to allowed host
   function handleNoticeResponse(){
-    // auto open the SMARTLINK only if host allowed
-    if(!safeOpenExternal(SMARTLINK_URL)){
-      console.warn('smartlink blocked or not allowed');
+    // Try to open the SMARTLINK but always close the modal and mark acknowledged
+    try{
+      safeOpenExternal(SMARTLINK_URL);
+    }catch(e){
+      console.warn('safeOpenExternal failed', e);
     }
-    const modal = document.getElementById('modalNotice'); if(modal) modal.style.display='none'; sessionStorage.setItem('noticeAcknowledged','true');
+    const modal = document.getElementById('modalNotice'); if(modal) modal.style.display='none';
+    try{ sessionStorage.setItem('noticeAcknowledged','true'); }catch(e){}
   }
 
   function showNoticeModal(){
