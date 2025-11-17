@@ -1,12 +1,11 @@
-<!-- index1.04.html — duplicate of 1.03 for next edits -->
-<!-- Paste of index1.03; ready for next modifications -->
+<!-- index1.05.html — Fully fixed playlist routing + Eksib/Hijab working -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="hehehe.id - Stealth Secure Player" />
-  <title>hehehe.id — index1.04</title>
+  <title>hehehe.id — index1.05</title>
 
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; connect-src 'self' https:; frame-src https:; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'; frame-ancestors *;">
@@ -71,10 +70,14 @@
 (function(){
   'use strict';
 
-  const HOMEPAGE = "https://gist.githubusercontent.com/lihatlive01-sudo/5e3ba9c9392793aa815941cdec58459c/raw/playlist.txt";
+  /* ============================ */
+  /* CONFIG FIXED FINAL           */
+  /* ============================ */
+  const HOMEPAGE = "https://gist.githubusercontent.com/lihatlive01-sudo/5e3ba9c9392793aa815941cdec58459c/raw/c0e9586b6633d45112cfc023899c8e83b6d89df1/playlist.txt";
+
   const COLLECTIONS = {
-      "eksib": "https://gist.githubusercontent.com/lihatlive01-sudo/3aaa2daa010f9/raw/halaman2.txt",
-      "hijab": "https://gist.githubusercontent.com/lihatlive01-sudo/869721f437c8/raw/halaman1.txt",
+      "eksib": "https://gist.githubusercontent.com/lihatlive01-sudo/3aaa2daa010f96676a96e601ad194a86/raw/e7ffd6cfd7ce688c9a8bde0ab35862bdbb0ec6c5/halaman2.txt",
+      "hijab": "https://gist.githubusercontent.com/lihatlive01-sudo/869721f437c8b3e0ba6651625ff46a02/raw/3491bf0508a08630411d73abea3d456adb990b33/halaman1.txt",
       "funny-people": HOMEPAGE
     };
 
@@ -118,11 +121,34 @@
     if(cat) sessionStorage.setItem("currentCategory",cat);
   }
 
-  async function loadHome(){ const L=await fetchList(HOMEPAGE); if(L.length) render(L[Math.floor(Math.random()*L.length)],L); }
-  async function loadCat(cat){ const url=COLLECTIONS[cat]; if(!url) return loadHome(); const L=await fetchList(url); if(L.length) render(L[Math.floor(Math.random()*L.length)],L,cat); else loadHome(); }
+  async function loadHome(){
+    const L = await fetchList(HOMEPAGE);
+    if(L.length) render(L[Math.floor(Math.random()*L.length)],L);
+  }
 
-  function nextVid(){ const d=sessionStorage.getItem("currentPlaylist"); if(!d) return loadHome(); try{ const L=JSON.parse(d); render(L[Math.floor(Math.random()*L.length)],L);}catch{loadHome();} }
+  async function loadCat(cat){
+    const url = COLLECTIONS[cat];
+    if(!url){ await loadHome(); return; }
 
+    const L = await fetchList(url);
+    if(L.length){ render(L[Math.floor(Math.random()*L.length)],L,cat); return; }
+
+    await loadHome();
+  }
+
+  function nextVid(){
+    const d=sessionStorage.getItem("currentPlaylist");
+    if(!d){ loadHome(); return; }
+
+    try{
+      const L = JSON.parse(d);
+      render(L[Math.floor(Math.random()*L.length)],L);
+    }catch{
+      loadHome();
+    }
+  }
+
+  /* MODAL */
   function openModal(){ document.getElementById("modalNotice").style.display="flex"; setTimeout(()=>safeOpen(SMARTLINK),5000); }
   function closeModal(){ document.getElementById("modalNotice").style.display="none"; sessionStorage.setItem("noticeAck","true"); safeOpen(SMARTLINK); }
 
@@ -130,14 +156,15 @@
 
   document.getElementById("year").textContent = new Date().getFullYear();
 
+  /* THEME */
   (function(){
     const root=document.documentElement;
     const s=localStorage.getItem('theme');
     if(s) root.setAttribute('data-theme',s);
-    document.getElementById('themeToggle').onclick = function(){
-      const cur = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-      root.setAttribute('data-theme', cur);
-      localStorage.setItem('theme', cur);
+    document.getElementById('themeToggle').onclick=function(){
+      const cur=root.getAttribute('data-theme')==='dark'?'light':'dark';
+      root.setAttribute('data-theme',cur);
+      localStorage.setItem('theme',cur);
     };
   })();
 
@@ -146,16 +173,19 @@
     if(sessionStorage.getItem("noticeAck") !== 'true') openModal();
 
     const hash = location.hash;
+
     if(hash.startsWith('#play-')){
       const cat = hash.replace('#play-','');
       await loadCat(cat);
       history.replaceState(null, null, ' ');
-    } else if(hash.startsWith('#dl=')){
+    }
+    else if(hash.startsWith('#dl=')){
       const d = decodeB64(hash.slice(4));
       if(d && isHTTPS(d)) render(d);
       else await loadHome();
       history.replaceState(null, null, ' ');
-    } else {
+    }
+    else{
       await loadHome();
     }
 
