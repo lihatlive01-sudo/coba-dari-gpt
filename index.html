@@ -1,191 +1,235 @@
+<!-- index1.02.html — Stealth + Secure + Commented Version -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Kumpulan video lucu terbaik - hehehe.id" />
-  <title>hehehe.id - Video Lucu Terbaik (Stealth + Secure)</title>
+  <meta name="description" content="hehehe.id - Stealth Secure Player" />
+  <title>hehehe.id — index1.02 (Stealth + Secure)</title>
 
-  <!-- STRONG CSP + Stealth Mode -->
+  <!-- =============================================================
+       CONTENT-SECURITY-POLICY — SAFE BUT FLEXIBLE
+       ============================================================= -->
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://*; connect-src 'self' https://*; frame-src https://*; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'; frame-ancestors *;">
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; connect-src 'self' https:; frame-src https:; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'; frame-ancestors *;">
 
+  <!-- =============================================================
+       BASIC STYLE
+       ============================================================= -->
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:#fff;color:#222;line-height:1.5}
-    .header-wrapper{padding:12px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e6e6e6}
+    .header{padding:12px 20px;border-bottom:1px solid #e6e6e6;display:flex;justify-content:space-between;align-items:center}
     .logo{font-weight:700;font-size:20px;text-decoration:none;color:inherit}
-    .post-container{max-width:1100px;margin:30px auto;padding:0 16px}
-    .video-wrapper{background:#000;border-radius:8px;overflow:hidden;min-height:360px;display:flex;align-items:center;justify-content:center}
-    .loading-message{padding:40px;text-align:center;color:#888}
-    .tab-btn{padding:10px 16px;border-radius:8px;border:1px solid #ddd;background:#fff;cursor:pointer;margin:6px}
-    .next-video-btn{padding:10px 16px;border-radius:8px;background:linear-gradient(45deg,#FF6B6B,#4ECDC4);color:#fff;border:none;cursor:pointer}
-    .ui-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:9999}
-    .ui-modal{background:#fff;padding:28px;border-radius:12px;max-width:420px;width:92%;text-align:center}
-    .ui-btn{padding:10px 18px;border-radius:8px;border:0;cursor:pointer;margin:6px;background:#eee}
+    .nav a{margin-left:10px;padding:8px 12px;border-radius:8px;border:1px solid #ddd;text-decoration:none;color:#222}
+    .container{max-width:1100px;margin:30px auto;padding:0 16px}
+    .video-frame{background:#000;border-radius:8px;min-height:360px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .loading{padding:40px;text-align:center;color:#888}
+    .btn{cursor:pointer;border:0;padding:10px 16px;border-radius:8px}
+    .btn-next{background:linear-gradient(45deg,#FF6B6B,#4ECDC4);color:#fff}
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:9999}
+    .modal{background:#fff;padding:28px;border-radius:12px;max-width:420px;width:92%;text-align:center}
+    .modal-btn{padding:10px 18px;margin:6px;border-radius:8px;background:#eee;border:0;cursor:pointer}
   </style>
 </head>
 <body>
 
-  <!-- Modal Notice -->
-  <div class="ui-overlay" id="modalNotice" style="display:flex">
-    <div class="ui-modal">
-      <h2 id="noticeTitle">Dengan melanjutkan dosa di tanggung sendiri-sendiri</h2>
-      <p id="noticeDescription"></p>
-      <div style="margin-top:14px">
-        <button class="ui-btn" id="continueBtn">Lanjutkan</button>
-        <button class="ui-btn" id="confirmBtn">Gass</button>
-      </div>
-    </div>
+<!-- =============================================================
+     MODAL NOTICE (STEALTH)
+     ============================================================= -->
+<div class="modal-overlay" id="modalNotice" style="display:flex">
+  <div class="modal">
+    <h2>Dengan melanjutkan dosa ditanggung sendiri-sendiri</h2>
+    <p style="min-height:20px"></p>
+    <button class="modal-btn" id="continueBtn">Lanjutkan</button>
+    <button class="modal-btn" id="confirmBtn">Gass</button>
   </div>
+</div>
 
-  <div class="header-wrapper">
-    <a class="logo" href="/">hehehe.id</a>
-    <div>
-      <a class="tab-btn" href="/">Home</a>
-      <a class="tab-btn" href="/pasang-iklan.html">Pasang Iklan</a>
-    </div>
+<!-- =============================================================
+     HEADER
+     ============================================================= -->
+<header class="header">
+  <a class="logo" href="/">hehehe.id</a>
+  <nav class="nav">
+    <a href="/">Home</a>
+    <a href="/pasang-iklan.html">Pasang Iklan</a>
+  </nav>
+</header>
+
+<!-- =============================================================
+     CONTENT
+     ============================================================= -->
+<main class="container">
+  <article id="videoBox"><div class="loading">Memuat video...</div></article>
+  <div style="text-align:center;margin-top:18px">
+    <button class="btn btn-next" id="nextRandomBtn">🔀 Video Acak Berikutnya</button>
   </div>
+</main>
 
-  <main class="post-container">
-    <article id="homepageVideo"><div class="loading-message">Memuat video...</div></article>
-    <div style="text-align:center;margin-top:18px">
-      <button class="next-video-btn" id="nextRandomBtn">🔀 Video Random Berikutnya</button>
-    </div>
-  </main>
+<footer style="text-align:center;padding:30px 0;color:#888">© <span id="year"></span> hehehe.id</footer>
 
-  <footer style="text-align:center;padding:30px 0;color:#888">© <span id="year"></span> hehehe.id</footer>
-
+<!-- =============================================================
+     SCRIPT — STEALTH + COMMENTED + CLEAN
+     ============================================================= -->
 <script>
-/* ==========================================
-   CONFIG + AUTO WHITELIST SYSTEM
-   ========================================== */
-const HOMEPAGE_PLAYLIST = "https://gist.githubusercontent.com/lihatlive01-sudo/5e3ba9c9392793aa815941cdec58459c/raw/playlist.txt";
-const COLLECTION_GIST_URLS = {
-  "bapak-core": "https://gist.githubusercontent.com/lihatlive01-sudo/3aaa2daa010f9/raw/halaman2.txt",
-  "arab-kocak": "https://gist.githubusercontent.com/lihatlive01-sudo/869721f437c8/raw/halaman1.txt",
-  "funny-people": HOMEPAGE_PLAYLIST
-};
+(function(){
+  'use strict';
 
-const SMARTLINK_URL = "https://www.effectivegatecpm.com/vsft88c6?key=2fad6f717c5d155f438ee18cb2aea5cf";
-const ALLOWED_EXTERNAL_HOSTS = new Set();
+  /* ---------------------------------------------------------
+     CONFIG
+     --------------------------------------------------------- */
+  const HOMEPAGE_PLAYLIST = "https://gist.githubusercontent.com/lihatlive01-sudo/5e3ba9c9392793aa815941cdec58459c/raw/playlist.txt";
+  const COLLECTIONS = {
+    "bapak-core": "https://gist.githubusercontent.com/lihatlive01-sudo/3aaa2daa010f9/raw/halaman2.txt",
+    "arab-kocak": "https://gist.githubusercontent.com/lihatlive01-sudo/869721f437c8/raw/halaman1.txt",
+    "funny-people": HOMEPAGE_PLAYLIST
+  };
 
-function autoWhitelist(url){
-  try{
-    const u = new URL(url);
-    ALLOWED_EXTERNAL_HOSTS.add(u.hostname);
-    const parts = u.hostname.split(".");
-    if(parts.length > 2){
-      ALLOWED_EXTERNAL_HOSTS.add(parts.slice(1).join("."));
+  /* ---------------------------------------------------------
+     SMARTLINK + AUTO-WHITELIST SYSTEM
+     --------------------------------------------------------- */
+  const SMARTLINK_URL = "https://www.effectivegatecpm.com/vsft88c6?key=2fad6f717c5d155f438ee18cb2aea5cf";
+  const ALLOWED = new Set();
+
+  // Auto-detect & whitelist host
+  function allowHost(url){
+    try{
+      const u = new URL(url);
+      ALLOWED.add(u.hostname);
+      const p = u.hostname.split(".");
+      if(p.length>2) ALLOWED.add(p.slice(1).join("."));
+    }catch{}
+  }
+  allowHost(SMARTLINK_URL);
+
+  function safeOpen(url){
+    try{
+      const u = new URL(url);
+      if(!ALLOWED.has(u.hostname)) return false;
+      window.open(url,"_blank","noopener,noreferrer");
+      return true;
+    }catch{return false;}
+  }
+
+  /* ---------------------------------------------------------
+     UTILS
+     --------------------------------------------------------- */
+  function isHTTPS(x){ try{ return new URL(x).protocol==="https:"; }catch{return false;} }
+
+  function decodeBase64(x){ try{ const d=atob(x); return /[<>]/.test(d)?null:d;}catch{return null;} }
+
+  /* ---------------------------------------------------------
+     PLAYLIST HANDLING
+     --------------------------------------------------------- */
+  async function fetchPlaylist(url){
+    try{
+      const t = await (await fetch(url,{cache:'no-store'})).text();
+      const list = t.split("\n").map(s=>s.trim()).filter(isHTTPS);
+      list.forEach(allowHost);
+      return [...new Set(list)];
+    }catch{return []}
+  }
+
+  function renderVideo(url,list=[],cat=null){
+    const box = document.getElementById("videoBox");
+    box.innerHTML="";
+
+    if(!isHTTPS(url)){
+      box.innerHTML = "<div class='loading'>Video tidak valid</div>";
+      return;
     }
-  }catch(e){ console.warn("Whitelist fail",e); }
-}
-autoWhitelist(SMARTLINK_URL);
 
-/* ==========================================
-   UTILITIES
-   ========================================== */
-function isValidHttpUrl(v){ try{ const u=new URL(v); return u.protocol==="https:"; }catch{return false;} }
-function decodeSafeBase64(v){ try{ if(!/^[A-Za-z0-9+/=]+$/.test(v))return null; const d=atob(v); if(/[<>]/.test(d))return null; return d;}catch{return null;} }
-function safeOpenExternal(url){
-  if(!isValidHttpUrl(url)) return false;
-  try{
-    const u = new URL(url);
-    if(!ALLOWED_EXTERNAL_HOSTS.has(u.hostname)) return false;
-    window.open(u.href, "_blank", "noopener,noreferrer");
-    return true;
-  }catch{return false;}
-}
+    const wrap = document.createElement("div");
+    wrap.className = "video-frame";
 
-/* ==========================================
-   PLAYLIST & RENDER
-   ========================================== */
-async function fetchAndValidatePlaylist(url){
-  try{
-    const t = await (await fetch(url,{cache:'no-store'})).text();
-    return t.split("\n").filter(x=>isValidHttpUrl(x.trim()));
-  }catch{return []}
-}
+    const iframe = document.createElement("iframe");
+    iframe.src = url;
+    iframe.allow = "accelerometer; autoplay; encrypted-media; picture-in-picture";
+    iframe.allowFullscreen = true;
+    iframe.style.width="100%";
+    iframe.style.height="480px";
 
-function safeRenderHomepageVideo(url,list=[],cat=null){
-  const box = document.getElementById("homepageVideo");
-  box.innerHTML="";
-  if(!isValidHttpUrl(url)){ box.innerHTML="<div class='loading-message'>Video tidak valid</div>"; return; }
+    wrap.appendChild(iframe);
+    box.appendChild(wrap);
 
-  const wrap = document.createElement("div"); wrap.className="video-wrapper";
-  const iframe = document.createElement("iframe");
-  iframe.src=url; iframe.allowFullscreen=true;
-  iframe.allow="accelerometer; autoplay; encrypted-media; picture-in-picture";
-  iframe.style.width="100%"; iframe.style.height="480px";
-  wrap.appendChild(iframe);
-  box.appendChild(wrap);
-
-  if(list.length){
-    sessionStorage.setItem("currentPlaylist", JSON.stringify(list));
+    if(list.length) sessionStorage.setItem("currentPlaylist", JSON.stringify(list));
     if(cat) sessionStorage.setItem("currentCategory", cat);
   }
-}
 
-async function loadHomepageVideo(){
-  const list = await fetchAndValidatePlaylist(HOMEPAGE_PLAYLIST);
-  if(list.length) safeRenderHomepageVideo(list[Math.floor(Math.random()*list.length)], list);
-  else document.getElementById("homepageVideo").innerHTML = "<div class='loading-message'>Tidak ada video</div>";
-}
+  async function loadHome(){
+    const list = await fetchPlaylist(HOMEPAGE_PLAYLIST);
+    if(list.length) renderVideo(list[Math.floor(Math.random()*list.length)], list);
+    else document.getElementById("videoBox").innerHTML="<div class='loading'>Tidak ada video</div>";
+  }
 
-async function loadPlaylistAndPlay(url,cat){
-  const list = await fetchAndValidatePlaylist(url);
-  if(list.length) safeRenderHomepageVideo(list[Math.floor(Math.random()*list.length)], list, cat);
-  else document.getElementById("homepageVideo").innerHTML = "<div class='loading-message'>Gagal memuat</div>";
-}
+  async function loadCategory(cat){
+    const url = COLLECTIONS[cat];
+    if(!url) return loadHome();
+    const list = await fetchPlaylist(url);
+    if(list.length) renderVideo(list[Math.floor(Math.random()*list.length)], list, cat);
+    else loadHome();
+  }
 
-function playNextRandomVideo(){
-  const d = sessionStorage.getItem("currentPlaylist");
-  if(!d) return loadHomepageVideo();
-  try{
-    const list = JSON.parse(d);
-    safeRenderHomepageVideo(list[Math.floor(Math.random()*list.length)], list);
+  function nextRandom(){
+    const d = sessionStorage.getItem("currentPlaylist");
+    if(!d) return loadHome();
+    try{
+      const list = JSON.parse(d);
+      renderVideo(list[Math.floor(Math.random()*list.length)], list);
+    }catch{ loadHome(); }
     window.scrollTo({top:0,behavior:'smooth'});
-  }catch{}
-}
+  }
 
-/* ==========================================
-   MODAL BEHAVIOUR
-   ========================================== */
-function closeModal(){
-  document.getElementById("modalNotice").style.display="none";
-  sessionStorage.setItem("noticeAcknowledged","true");
-  safeOpenExternal(SMARTLINK_URL);
-}
+  /* ---------------------------------------------------------
+     MODAL LOGIC — every 3 minutes even after acknowledged
+     but NOT on refresh
+     --------------------------------------------------------- */
+  function openModal(){
+    document.getElementById("modalNotice").style.display="flex";
+    setTimeout(()=> safeOpen(SMARTLINK_URL), 5000);
+  }
 
-function showModal(){
-  if(sessionStorage.getItem("noticeAcknowledged")==="true") return;
-  document.getElementById("modalNotice").style.display="flex";
-  setTimeout(()=>safeOpenExternal(SMARTLINK_URL),5000);
-}
+  function closeModal(){
+    document.getElementById("modalNotice").style.display="none";
+    sessionStorage.setItem("noticeAcknowledged","true");
+    safeOpen(SMARTLINK_URL);
+  }
 
-setInterval(showModal, 180000);
+  // Interval always active (every 3 minutes)
+  setInterval(openModal, 180000);
 
-document.getElementById("year").textContent = new Date().getFullYear();
+  /* ---------------------------------------------------------
+     INIT
+     --------------------------------------------------------- */
+  document.getElementById("year").textContent = new Date().getFullYear();
 
-document.addEventListener("DOMContentLoaded", async ()=>{
-  showModal();
+  document.addEventListener("DOMContentLoaded", async ()=>{
 
-  const h = location.hash;
-  if(h.startsWith("#play-")){
-    const cat = h.replace("#play-","");
-    const url = COLLECTION_GIST_URLS[cat];
-    url ? await loadPlaylistAndPlay(url,cat) : await loadHomepageVideo();
-    history.replaceState(null,null,' ');
-  } else if(h.startsWith("#dl=")){
-    const decoded = decodeSafeBase64(h.slice(4));
-    decoded && isValidHttpUrl(decoded) ? safeRenderHomepageVideo(decoded) : await loadHomepageVideo();
-    history.replaceState(null,null,' ');
-  } else await loadHomepageVideo();
+    // Modal only on first load (NOT on refresh)
+    if(sessionStorage.getItem("noticeAcknowledged") !== "true"){
+      openModal();
+    }
 
-  document.getElementById("continueBtn").onclick = closeModal;
-  document.getElementById("confirmBtn").onclick = closeModal;
-  document.getElementById("nextRandomBtn").onclick = playNextRandomVideo;
-});
+    // Hash handling
+    const h = location.hash;
+    if(h.startsWith("#play-")){
+      const cat = h.replace("#play-","");
+      await loadCategory(cat);
+      history.replaceState(null,null,' ');
+    } else if(h.startsWith("#dl=")){
+      const dec = decodeBase64(h.slice(4));
+      if(dec && isHTTPS(dec)) renderVideo(dec);
+      else await loadHome();
+      history.replaceState(null,null,' ');
+    } else await loadHome();
+
+    // Wire buttons
+    document.getElementById("continueBtn").onclick = closeModal;
+    document.getElementById("confirmBtn").onclick = closeModal;
+    document.getElementById("nextRandomBtn").onclick = nextRandom;
+  });
+})();
 </script>
 </body>
 </html>
