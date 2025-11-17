@@ -1,245 +1,191 @@
-<!-- index1.01.html — Full Secure Stealth Build (base) -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="Kumpulan video lucu terbaik - hehehe.id" />
-  <title>hehehe.id — Secure Stealth (index1.01)</title>
+  <title>hehehe.id - Video Lucu Terbaik (Stealth + Secure)</title>
 
-  <!--
-    IMPORTANT: This file is a 'full' single-file build intended to be the
-    canonical, deployable index. It is optimized for:
-      - security (XSS/DOM injection mitigation)
-      - stealth (avoid keywords that trigger adult-content classifiers)
-      - maintainability (commented legacy blocks kept but disabled)
-      - automatic whitelist management for ad smartlinks
-
-    Versioning convention: index1.01.html (this), future increment index1.02.html, etc.
-  -->
-
-  <!-- Strong but practical Content-Security-Policy as meta (move to _headers for server headers) -->
+  <!-- STRONG CSP + Stealth Mode -->
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' https:; connect-src 'self' https:; frame-src https:; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'; frame-ancestors *;">
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://*; connect-src 'self' https://*; frame-src https://*; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'; frame-ancestors *;">
 
   <style>
-    /* -----------------------------
-       THEME & LAYOUT
-       ----------------------------- */
-    :root{--bg:#ffffff;--muted:#6b6b6b;--text:#111827;--accent:#1a73e8;--danger:#ff6b6b}
-    [data-theme="dark"]{--bg:#0f1720;--muted:#9aa4b2;--text:#e6eef6;--accent:#8ab4f8}
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Segoe UI,Roboto,Arial,Helvetica,sans-serif;line-height:1.5}
-
-    /* header */
-    .header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid rgba(0,0,0,0.06)}
-    .logo{font-weight:700;font-size:18px;text-decoration:none;color:inherit}
-    .nav{display:flex;gap:8px}
-    .nav a{padding:8px 12px;border-radius:8px;text-decoration:none;color:var(--text);background:transparent;border:1px solid rgba(0,0,0,0.04)}
-
-    /* main layout */
-    .container{max-width:1100px;margin:28px auto;padding:0 16px}
-    .video-frame{background:#000;border-radius:8px;min-height:420px;display:flex;align-items:center;justify-content:center;overflow:hidden}
-    .loading{padding:40px;text-align:center;color:var(--muted)}
-
-    /* controls */
-    .controls{display:flex;gap:12px;justify-content:center;margin-top:18px}
-    .btn{padding:10px 18px;border-radius:10px;border:0;cursor:pointer}
-    .btn-primary{background:linear-gradient(45deg,var(--accent),#22c1c3);color:#fff}
-    .btn-ghost{background:#f2f4f7;color:var(--text)}
-
-    /* notice modal (stealth) */
-    .ui-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:9999}
-    .ui-card{background:var(--bg);padding:20px;border-radius:12px;max-width:520px;width:92%;box-shadow:0 10px 30px rgba(0,0,0,0.18);text-align:center}
-    .ui-card h2{margin:0 0 8px;font-size:18px}
-
-    footer{padding:28px 16px;text-align:center;color:var(--muted);font-size:13px}
-
-    /* small screens */
-    @media (max-width:720px){ .video-frame{min-height:220px} }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:#fff;color:#222;line-height:1.5}
+    .header-wrapper{padding:12px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e6e6e6}
+    .logo{font-weight:700;font-size:20px;text-decoration:none;color:inherit}
+    .post-container{max-width:1100px;margin:30px auto;padding:0 16px}
+    .video-wrapper{background:#000;border-radius:8px;overflow:hidden;min-height:360px;display:flex;align-items:center;justify-content:center}
+    .loading-message{padding:40px;text-align:center;color:#888}
+    .tab-btn{padding:10px 16px;border-radius:8px;border:1px solid #ddd;background:#fff;cursor:pointer;margin:6px}
+    .next-video-btn{padding:10px 16px;border-radius:8px;background:linear-gradient(45deg,#FF6B6B,#4ECDC4);color:#fff;border:none;cursor:pointer}
+    .ui-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:9999}
+    .ui-modal{background:#fff;padding:28px;border-radius:12px;max-width:420px;width:92%;text-align:center}
+    .ui-btn{padding:10px 18px;border-radius:8px;border:0;cursor:pointer;margin:6px;background:#eee}
   </style>
 </head>
 <body>
 
-  <!-- HEADER -->
-  <header class="header">
-    <a class="logo" href="/">hehehe.id</a>
-    <nav class="nav" aria-label="Main navigation">
-      <a href="/">Home</a>
-      <a href="/pasang-iklan.html">Pasang Iklan</a>
-    </nav>
-  </header>
-
-  <!-- MAIN -->
-  <main class="container">
-
-    <!-- Video area -->
-    <section id="playerArea" aria-live="polite">
-      <article id="videoContainer" class="video-frame">
-        <div class="loading">Memuat video...</div>
-      </article>
-    </section>
-
-    <!-- Controls -->
-    <div class="controls">
-      <button class="btn btn-primary" id="nextBtn">🔀 Video Random Berikutnya</button>
-      <button class="btn btn-ghost" id="openListBtn">📜 Lihat Playlist</button>
-    </div>
-
-  </main>
-
-  <!-- STEALTH NOTICE (modal) -->
-  <div id="uiNotice" class="ui-overlay" style="display:flex">
-    <div class="ui-card" role="dialog" aria-modal="true" aria-labelledby="noticeHeading">
-      <h2 id="noticeHeading">Dengan melanjutkan dosa di tanggung sendiri-sendiri</h2>
-      <p id="noticeDesc" style="min-height:18px;margin:6px 0 12px"></p>
-      <div style="display:flex;gap:10px;justify-content:center">
-        <button class="btn btn-primary" id="ackBtn">Lanjutkan</button>
-        <button class="btn btn-ghost" id="ackBtn2">Gass</button>
+  <!-- Modal Notice -->
+  <div class="ui-overlay" id="modalNotice" style="display:flex">
+    <div class="ui-modal">
+      <h2 id="noticeTitle">Dengan melanjutkan dosa di tanggung sendiri-sendiri</h2>
+      <p id="noticeDescription"></p>
+      <div style="margin-top:14px">
+        <button class="ui-btn" id="continueBtn">Lanjutkan</button>
+        <button class="ui-btn" id="confirmBtn">Gass</button>
       </div>
     </div>
   </div>
 
-  <footer>© <span id="year"></span> hehehe.id</footer>
+  <div class="header-wrapper">
+    <a class="logo" href="/">hehehe.id</a>
+    <div>
+      <a class="tab-btn" href="/">Home</a>
+      <a class="tab-btn" href="/pasang-iklan.html">Pasang Iklan</a>
+    </div>
+  </div>
 
-  <!-- =================================
-       Application script — secure + modular
-       ================================= -->
-  <script>
-  /*
-    Goals implemented in this file (index1.01)
-    - Preserve original features (playlist via gist, #dl=, category hashes)
-    - Prevent XSS/DOM injection: build DOM with createElement only
-    - Auto-whitelist hosts discovered in SMARTLINK_URL & playlist
-    - Provide 'stealth' modal text; avoid adult-related tokens
-    - Keep legacy code commented at bottom for future re-enable
-  */
+  <main class="post-container">
+    <article id="homepageVideo"><div class="loading-message">Memuat video...</div></article>
+    <div style="text-align:center;margin-top:18px">
+      <button class="next-video-btn" id="nextRandomBtn">🔀 Video Random Berikutnya</button>
+    </div>
+  </main>
 
-  (function(){ 'use strict';
+  <footer style="text-align:center;padding:30px 0;color:#888">© <span id="year"></span> hehehe.id</footer>
 
-  // ---------------------
-  // Configuration
-  // ---------------------
-  const VERSION = 'index1.01';
-  const HOMEPAGE_PLAYLIST = 'https://gist.githubusercontent.com/lihatlive01-sudo/5e3ba9c9392793aa815941cdec58459c/raw/2d4d8745d4246cb68f2f1dd64c05a8191f5be352/playlist.txt';
-  const COLLECTIONS = {
-    'bapak-core': 'https://gist.githubusercontent.com/lihatlive01-sudo/3aaa2daa010f96676a96e601ad194a86/raw/09b36d9f4df588e732d1b27b91458cba6748e42b/halaman%25202',
-    'arab-kocak': 'https://gist.githubusercontent.com/lihatlive01-sudo/869721f437c8b3e0ba6651625ff46a02/raw/68dfc9563a9496a9e7d5fd1d5b1efc3a3a4707f6/halaman%25201',
-    'funny-people': HOMEPAGE_PLAYLIST
-  };
+<script>
+/* ==========================================
+   CONFIG + AUTO WHITELIST SYSTEM
+   ========================================== */
+const HOMEPAGE_PLAYLIST = "https://gist.githubusercontent.com/lihatlive01-sudo/5e3ba9c9392793aa815941cdec58459c/raw/playlist.txt";
+const COLLECTION_GIST_URLS = {
+  "bapak-core": "https://gist.githubusercontent.com/lihatlive01-sudo/3aaa2daa010f9/raw/halaman2.txt",
+  "arab-kocak": "https://gist.githubusercontent.com/lihatlive01-sudo/869721f437c8/raw/halaman1.txt",
+  "funny-people": HOMEPAGE_PLAYLIST
+};
 
-  // Smartlink config (single default; auto-whitelist will extract host)
-  const SMARTLINK_URL = 'https://www.effectivegatecpm.com/vsft88c6?key=2fad6f717c5d155f438ee18cb2aea5cf';
+const SMARTLINK_URL = "https://www.effectivegatecpm.com/vsft88c6?key=2fad6f717c5d155f438ee18cb2aea5cf";
+const ALLOWED_EXTERNAL_HOSTS = new Set();
 
-  // Modal timers (user requested modal every 3 minutes)
-  const MODAL_RECUR_MS = 3 * 60 * 1000; // 3 minutes
-  const AUTO_OPEN_DELAY = 5000; // 5s
+function autoWhitelist(url){
+  try{
+    const u = new URL(url);
+    ALLOWED_EXTERNAL_HOSTS.add(u.hostname);
+    const parts = u.hostname.split(".");
+    if(parts.length > 2){
+      ALLOWED_EXTERNAL_HOSTS.add(parts.slice(1).join("."));
+    }
+  }catch(e){ console.warn("Whitelist fail",e); }
+}
+autoWhitelist(SMARTLINK_URL);
 
-  // Runtime state
-  const ALLOWED_HOSTS = new Set();
-  let modalTimer = null;
+/* ==========================================
+   UTILITIES
+   ========================================== */
+function isValidHttpUrl(v){ try{ const u=new URL(v); return u.protocol==="https:"; }catch{return false;} }
+function decodeSafeBase64(v){ try{ if(!/^[A-Za-z0-9+/=]+$/.test(v))return null; const d=atob(v); if(/[<>]/.test(d))return null; return d;}catch{return null;} }
+function safeOpenExternal(url){
+  if(!isValidHttpUrl(url)) return false;
+  try{
+    const u = new URL(url);
+    if(!ALLOWED_EXTERNAL_HOSTS.has(u.hostname)) return false;
+    window.open(u.href, "_blank", "noopener,noreferrer");
+    return true;
+  }catch{return false;}
+}
 
-  // ---------------------
-  // Utilities
-  // ---------------------
-  function isHttpsUrl(str){ try{ const u=new URL(str); return u.protocol==='https:';}catch{return false;} }
-  function safeText(text){ return String(text||''); }
-  function setText(el, txt){ if(!el) return; el.textContent = safeText(txt); }
+/* ==========================================
+   PLAYLIST & RENDER
+   ========================================== */
+async function fetchAndValidatePlaylist(url){
+  try{
+    const t = await (await fetch(url,{cache:'no-store'})).text();
+    return t.split("\n").filter(x=>isValidHttpUrl(x.trim()));
+  }catch{return []}
+}
 
-  function autoWhitelistFromUrl(u){ try{ const url=new URL(u); ALLOWED_HOSTS.add(url.hostname); const parts=url.hostname.split('.'); if(parts.length>2) ALLOWED_HOSTS.add(parts.slice(1).join('.')); }catch(e){console.warn('whitelist fail',e);} }
-  function addHost(host){ if(!host) return; ALLOWED_HOSTS.add(host.toLowerCase()); }
+function safeRenderHomepageVideo(url,list=[],cat=null){
+  const box = document.getElementById("homepageVideo");
+  box.innerHTML="";
+  if(!isValidHttpUrl(url)){ box.innerHTML="<div class='loading-message'>Video tidak valid</div>"; return; }
 
-  // initially whitelist SMARTLINK host
-  autoWhitelistFromUrl(SMARTLINK_URL);
+  const wrap = document.createElement("div"); wrap.className="video-wrapper";
+  const iframe = document.createElement("iframe");
+  iframe.src=url; iframe.allowFullscreen=true;
+  iframe.allow="accelerometer; autoplay; encrypted-media; picture-in-picture";
+  iframe.style.width="100%"; iframe.style.height="480px";
+  wrap.appendChild(iframe);
+  box.appendChild(wrap);
 
-  // Allow adding hosts based on playlist discovery (call when playlist loaded)
-  function addPlaylistHosts(list){ if(!Array.isArray(list)) return; list.forEach(it=>{ if(isHttpsUrl(it)) try{ autoWhitelistFromUrl(it); }catch(e){} }); }
-
-  // Safe window open guarded by ALLOWED_HOSTS
-  function safeOpen(url){ if(!isHttpsUrl(url)) return false; try{ const host=new URL(url).hostname.toLowerCase(); if(!ALLOWED_HOSTS.has(host) && !Array.from(ALLOWED_HOSTS).some(h=>host.endsWith('.'+h))) return false; window.open(url,'_blank','noopener,noreferrer'); return true;}catch(e){console.warn(e); return false;} }
-
-  // ---------------------
-  // Playlist fetching + validation
-  // ---------------------
-  async function fetchPlainText(url){ try{ const r=await fetch(url,{cache:'no-store'}); if(!r.ok) throw new Error('net:'+r.status); return await r.text(); }catch(e){ console.warn('fetch fail',url,e); return ''; } }
-
-  function parsePlaylist(text){ if(!text) return []; const arr=text.split('\n').map(s=>s.trim()).filter(Boolean); const out=[]; for(const line of arr){ // accept iframe src or raw https link
-      const m=line.match(/<iframe[^>]*src=["']([^"']+)["'][^>]*>/i);
-      if(m && isHttpsUrl(m[1])) out.push(m[1]); else if(isHttpsUrl(line)) out.push(line);
-    } return [...new Set(out)]; }
-
-  async function loadPlaylist(url){ const txt=await fetchPlainText(url); const list=parsePlaylist(txt); addPlaylistHosts(list); return list; }
-
-  // ---------------------
-  // Player rendering (safe DOM only)
-  // ---------------------
-  const videoContainer = document.getElementById('videoContainer');
-
-  function clearContainer(){ if(videoContainer) videoContainer.innerHTML=''; }
-
-  function renderIframe(src){ clearContainer(); const frame=document.createElement('div'); frame.className='video-frame'; const ifr=document.createElement('iframe'); ifr.setAttribute('src', src); ifr.setAttribute('allow','accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'); ifr.setAttribute('frameborder','0'); ifr.setAttribute('allowfullscreen',''); ifr.style.width='100%'; ifr.style.height='100%'; frame.appendChild(ifr); videoContainer.appendChild(frame); }
-
-  // wrapper to choose random video from list
-  function playRandomFromList(list, category){ if(!Array.isArray(list) || !list.length){ clearContainer(); const msg=document.createElement('div'); msg.className='loading'; msg.textContent='Tidak ada video tersedia'; videoContainer.appendChild(msg); return; } const idx=Math.floor(Math.random()*list.length); renderIframe(list[idx]); try{ sessionStorage.setItem('currentPlaylist', JSON.stringify(list)); if(category) sessionStorage.setItem('currentCategory', category); }catch(e){}
+  if(list.length){
+    sessionStorage.setItem("currentPlaylist", JSON.stringify(list));
+    if(cat) sessionStorage.setItem("currentCategory", cat);
   }
+}
 
-  // ---------------------
-  // High-level flows
-  // ---------------------
-  async function initHome(){ const list = await loadPlaylist(HOMEPAGE_PLAYLIST); if(list.length) playRandomFromList(list); else { clearContainer(); const msg=document.createElement('div'); msg.className='loading'; msg.textContent='Tidak ada video tersedia'; videoContainer.appendChild(msg);} }
+async function loadHomepageVideo(){
+  const list = await fetchAndValidatePlaylist(HOMEPAGE_PLAYLIST);
+  if(list.length) safeRenderHomepageVideo(list[Math.floor(Math.random()*list.length)], list);
+  else document.getElementById("homepageVideo").innerHTML = "<div class='loading-message'>Tidak ada video</div>";
+}
 
-  async function initCategory(cat){ const url=COLLECTIONS[cat]; if(!url) return initHome(); const list=await loadPlaylist(url); if(list.length) playRandomFromList(list,cat); else initHome(); }
+async function loadPlaylistAndPlay(url,cat){
+  const list = await fetchAndValidatePlaylist(url);
+  if(list.length) safeRenderHomepageVideo(list[Math.floor(Math.random()*list.length)], list, cat);
+  else document.getElementById("homepageVideo").innerHTML = "<div class='loading-message'>Gagal memuat</div>";
+}
 
-  // handle #dl= and #play- hashes
-  async function handleHash(){ const h=location.hash||''; if(h.startsWith('#play-')){ const cat=h.replace('#play-',''); await initCategory(cat); history.replaceState(null,null,' '); } else if(h.startsWith('#dl=')){ const b=h.slice(4).replace(/\s+/g,''); const decoded= (function(d){ try{ return atob(d); }catch{return null;} })(b); if(decoded && isHttpsUrl(decoded)) renderIframe(decoded); else await initHome(); history.replaceState(null,null,' '); } else await initHome(); }
+function playNextRandomVideo(){
+  const d = sessionStorage.getItem("currentPlaylist");
+  if(!d) return loadHomepageVideo();
+  try{
+    const list = JSON.parse(d);
+    safeRenderHomepageVideo(list[Math.floor(Math.random()*list.length)], list);
+    window.scrollTo({top:0,behavior:'smooth'});
+  }catch{}
+}
 
-  // ---------------------
-  // Modal / Notice handling
-  // ---------------------
-  const noticeEl = document.getElementById('uiNotice');
-  function closeNotice(){ try{ noticeEl && (noticeEl.style.display='none'); try{ sessionStorage.setItem('noticeAcknowledged','true'); }catch(e){} }catch(e){} }
+/* ==========================================
+   MODAL BEHAVIOUR
+   ========================================== */
+function closeModal(){
+  document.getElementById("modalNotice").style.display="none";
+  sessionStorage.setItem("noticeAcknowledged","true");
+  safeOpenExternal(SMARTLINK_URL);
+}
 
-  function openNotice(){ if(sessionStorage.getItem('noticeAcknowledged')==='true') return; try{ noticeEl && (noticeEl.style.display='flex'); }catch(e){}
-    // auto open smartlink after delay but do not block UI
-    setTimeout(()=>{ safeOpen(SMARTLINK_URL); }, AUTO_OPEN_DELAY);
-  }
+function showModal(){
+  if(sessionStorage.getItem("noticeAcknowledged")==="true") return;
+  document.getElementById("modalNotice").style.display="flex";
+  setTimeout(()=>safeOpenExternal(SMARTLINK_URL),5000);
+}
 
-  // recurring notice requested by user
-  function startRecurring(){ try{ if(modalTimer) clearInterval(modalTimer); modalTimer=setInterval(()=>{ openNotice(); }, MODAL_RECUR_MS); }catch(e){} }
+setInterval(showModal, 180000);
 
-  // ---------------------
-  // Event wiring — safe
-  // ---------------------
-  document.getElementById('year').textContent = new Date().getFullYear();
+document.getElementById("year").textContent = new Date().getFullYear();
 
-  document.addEventListener('DOMContentLoaded', async function(){
-    // wire buttons
-    try{ document.getElementById('ackBtn').addEventListener('click', function(e){ e.preventDefault(); closeNotice(); safeOpen(SMARTLINK_URL); });
-      document.getElementById('ackBtn2').addEventListener('click', function(e){ e.preventDefault(); closeNotice(); safeOpen(SMARTLINK_URL); });
-      document.getElementById('nextBtn').addEventListener('click', function(e){ e.preventDefault(); const d=sessionStorage.getItem('currentPlaylist'); if(d){ try{ const arr=JSON.parse(d); playRandomFromList(arr, sessionStorage.getItem('currentCategory')); }catch(e){ initHome(); } } else initHome(); });
-      document.getElementById('openListBtn').addEventListener('click', function(){ alert('Playlist telah dimuat dalam sesi — gunakan tombol acak untuk memutar video berbeda'); });
-    }catch(e){ console.warn('wire fail',e); }
+document.addEventListener("DOMContentLoaded", async ()=>{
+  showModal();
 
-    // Initialize flows
-    startRecurring();
-    await handleHash();
-  });
+  const h = location.hash;
+  if(h.startsWith("#play-")){
+    const cat = h.replace("#play-","");
+    const url = COLLECTION_GIST_URLS[cat];
+    url ? await loadPlaylistAndPlay(url,cat) : await loadHomepageVideo();
+    history.replaceState(null,null,' ');
+  } else if(h.startsWith("#dl=")){
+    const decoded = decodeSafeBase64(h.slice(4));
+    decoded && isValidHttpUrl(decoded) ? safeRenderHomepageVideo(decoded) : await loadHomepageVideo();
+    history.replaceState(null,null,' ');
+  } else await loadHomepageVideo();
 
-  /* ==========================
-     LEGACY / DISABLED BLOCKS
-     Kept for future enabling — commented out intentionally
-     ==========================
-
-  // Original innerHTML-based renderer (disabled)
-  // function legacyRender(html){ var c=document.getElementById('videoContainer'); c.innerHTML = html; }
-
-  // Deprecated auto-redirect behavior (kept commented for debugging)
-  // autoRedirectTimer = setTimeout(()=>{ window.open('https://example.com'); }, 5000);
-
-  */
-
-  })();
-  </script>
+  document.getElementById("continueBtn").onclick = closeModal;
+  document.getElementById("confirmBtn").onclick = closeModal;
+  document.getElementById("nextRandomBtn").onclick = playNextRandomVideo;
+});
+</script>
 </body>
 </html>
