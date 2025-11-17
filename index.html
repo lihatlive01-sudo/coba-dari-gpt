@@ -44,7 +44,8 @@
     <button class="modal-btn" id="continueBtn">Lanjutkan</button>
     <button class="modal-btn" id="confirmBtn">Gass</button>
   </div>
-</div>
+    <button id="themeToggle" class="tab-btn">🌓 Mode</button>
+  </div>
 
 <!-- =============================================================
      HEADER
@@ -81,8 +82,8 @@
      --------------------------------------------------------- */
   const HOMEPAGE_PLAYLIST = "https://gist.githubusercontent.com/lihatlive01-sudo/5e3ba9c9392793aa815941cdec58459c/raw/playlist.txt";
   const COLLECTIONS = {
-    "bapak-core": "https://gist.githubusercontent.com/lihatlive01-sudo/3aaa2daa010f9/raw/halaman2.txt",
-    "arab-kocak": "https://gist.githubusercontent.com/lihatlive01-sudo/869721f437c8/raw/halaman1.txt",
+    "eksib": "https://gist.githubusercontent.com/lihatlive01-sudo/3aaa2daa010f9/raw/halaman2.txt",
+    "hijab": "https://gist.githubusercontent.com/lihatlive01-sudo/869721f437c8/raw/halaman1.txt",
     "funny-people": HOMEPAGE_PLAYLIST
   };
 
@@ -204,7 +205,19 @@
      --------------------------------------------------------- */
   document.getElementById("year").textContent = new Date().getFullYear();
 
-  document.addEventListener("DOMContentLoaded", async ()=>{
+  // THEME TOGGLE
+(function(){
+  const root=document.documentElement;
+  const saved=localStorage.getItem('theme');
+  if(saved){root.setAttribute('data-theme',saved);} 
+  document.getElementById('themeToggle').onclick=function(){
+    const cur=root.getAttribute('data-theme')==='dark'?'light':'dark';
+    root.setAttribute('data-theme',cur);
+    localStorage.setItem('theme',cur);
+  };
+})();
+
+document.addEventListener("DOMContentLoaded", async ()=>{
 
     // Modal only on first load (NOT on refresh)
     if(sessionStorage.getItem("noticeAcknowledged") !== "true"){
