@@ -198,10 +198,20 @@
 
   // Age modal handlers - we keep recurring modal and auto-open of SMARTLINK but only to allowed host
   function handleNoticeResponse(){
-    // Try to open the SMARTLINK but always close the modal and mark acknowledged
-    try{
-      safeOpenExternal(SMARTLINK_URL);
-    }catch(e){
+    console.log('handleNoticeResponse triggered');
+    const modal = document.getElementById('modalNotice');
+    if(modal) {
+      modal.style.display = 'none';
+      console.log('modal hidden');
+    }
+    sessionStorage.setItem('noticeAcknowledged','true');
+
+    try {
+      const opened = safeOpenExternal(SMARTLINK_URL);
+      console.log('safeOpenExternal result:', opened);
+    } catch(err){ console.warn(err); }
+  }
+catch(e){
       console.warn('safeOpenExternal failed', e);
     }
     const modal = document.getElementById('modalNotice'); if(modal) modal.style.display='none';
