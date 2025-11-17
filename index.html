@@ -23,21 +23,21 @@
     .loading-message{padding:40px;text-align:center;color:var(--muted)}
     .tab-btn{padding:10px 16px;border-radius:8px;border:1px solid #ddd;background:var(--bg);cursor:pointer;margin:6px}
     .next-video-btn{padding:10px 16px;border-radius:8px;background:linear-gradient(45deg,#FF6B6B,#4ECDC4);color:#fff;border:none;cursor:pointer}
-    .age-verification-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:9999}
-    .age-verification-modal{background:var(--bg);padding:28px;border-radius:12px;max-width:420px;width:92%;text-align:center}
-    .age-btn{padding:10px 18px;border-radius:8px;border:0;cursor:pointer;margin:6px}
+    .ui-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:9999}
+    .ui-modal{background:var(--bg);padding:28px;border-radius:12px;max-width:420px;width:92%;text-align:center}
+    .ui-btn{padding:10px 18px;border-radius:8px;border:0;cursor:pointer;margin:6px}
   </style>
 </head>
 
 <body>
   <!-- Age verification modal -->
-  <div class="age-verification-overlay" id="modalNotice" style="display:flex">
-    <div class="age-verification-modal" role="dialog" aria-modal="true">
+  <div class="ui-overlay" id="modalNotice" style="display:flex">
+    <div class="ui-modal" role="dialog" aria-modal="true">
       <h2 id="noticeTitle">Dengan melanjutkan dosa di tanggung sendiri-sendiri</h2>
       <p id="noticeDescription"></p>
       <div style="display:flex;gap:8px;justify-content:center;margin-top:14px">
-        <button class="age-btn" id="continueBtn">Lanjutkan</button>
-        <button class="age-btn" id="confirmBtn">Gass</button>
+        <button class="ui-btn" id="continueBtn">Lanjutkan</button>
+        <button class="ui-btn" id="confirmBtn">Gass</button>
       </div>
     </div>
   </div>
@@ -218,7 +218,7 @@
 
   document.addEventListener('DOMContentLoaded', async function(){
     // language detection (simple)
-    const userLang = (navigator.language||'').toLowerCase(); if(userLang.includes('id')){ safeSetText(document.getElementById('noticeTitle'),'Apakah kamu berusia 18 tahun atau lebih?'); safeSetText(document.getElementById('noticeDescription'),'Harap bersikap bijak saat mengakses konten ini. Jaga volume dan layar agar tidak mengganggu orang lain.'); document.getElementById('continueBtn').textContent='Setuju'; document.getElementById('confirmBtn').textContent='Terima'; }
+    try{ document.getElementById('continueBtn').textContent='Lanjutkan'; document.getElementById('confirmBtn').textContent='Gass'; }catch(e){}
 
     // show modal first time and start recurring
     showNoticeModal(); startRecurringNoticeModal();
