@@ -196,59 +196,134 @@
     else{ loadHomepageVideo(); }
   }
 
-  // Age modal handlers - we keep recurring modal and auto-open of SMARTLINK but only to allowed host
+  // FIXED Age modal handlers - properly implemented
   function handleNoticeResponse(){
     console.log('handleNoticeResponse triggered');
+    
+    // Hide the modal
     const modal = document.getElementById('modalNotice');
     if(modal) {
       modal.style.display = 'none';
       console.log('modal hidden');
     }
-    sessionStorage.setItem('noticeAcknowledged','true');
+    
+    // Store that notice was acknowledged
+    try {
+      sessionStorage.setItem('noticeAcknowledged','true');
+    } catch(e) {
+      console.warn('sessionStorage failed', e);
+    }
 
+    // Try to open the smartlink (only for allowed domains)
     try {
       const opened = safeOpenExternal(SMARTLINK_URL);
       console.log('safeOpenExternal result:', opened);
-    } catch(err){ console.warn(err); }
-  }
-catch(e){
-      console.warn('safeOpenExternal failed', e);
+      if (opened) {
+        console.log('Smartlink opened successfully');
+      } else {
+        console.log('Smartlink was not opened (domain not allowed)');
+      }
+    } catch(err) {
+      console.warn('safeOpenExternal failed', err);
     }
-    const modal = document.getElementById('modalNotice'); if(modal) modal.style.display='none';
-    try{ sessionStorage.setItem('noticeAcknowledged','true'); }catch(e){}
   }
 
   function showNoticeModal(){
-    if(sessionStorage.getItem('noticeAcknowledged')==='true') return; const modal=document.getElementById('modalNotice'); if(modal) modal.style.display='flex';
-    // start auto-open timer (if SMARTLINK allowed)
+    // Don't show if already acknowledged
+    if(sessionStorage.getItem('noticeAcknowledged') === 'true') return;
+    
+    const modal = document.getElementById('modalNotice');
+    if(modal) {
+      modal.style.display = 'flex';
+      console.log('Modal displayed');
+    }
+    
+    // Start auto-open timer (if SMARTLINK allowed)
     if(autoRedirectTimer) clearTimeout(autoRedirectTimer);
-    autoRedirectTimer = setTimeout(()=>{ safeOpenExternal(SMARTLINK_URL); }, AUTO_REDIRECT_DELAY);
+    autoRedirectTimer = setTimeout(() => {
+      console.log('Auto-redirect timer triggered');
+      safeOpenExternal(SMARTLINK_URL);
+    }, AUTO_REDIRECT_DELAY);
   }
 
-  function startRecurringNoticeModal(){ if(modalRecurringTimer) clearInterval(modalRecurringTimer); modalRecurringTimer = setInterval(()=>{ showNoticeModal(); }, MODAL_RECURRING_INTERVAL); }
+  function startRecurringNoticeModal(){
+    if(modalRecurringTimer) clearInterval(modalRecurringTimer);
+    modalRecurringTimer = setInterval(() => {
+      showNoticeModal();
+    }, MODAL_RECURRING_INTERVAL);
+  }
 
   // Init and event wiring
   document.getElementById('year').textContent = new Date().getFullYear();
 
   document.addEventListener('DOMContentLoaded', async function(){
-    // language detection (simple)
-    try{ document.getElementById('continueBtn').textContent='Lanjutkan'; document.getElementById('confirmBtn').textContent='Gass'; }catch(e){}
+    console.log('DOM loaded, initializing...');
+    
+    // Set button texts (language detection - simple)
+    try {
+      const continueBtn = document.getElementById('continueBtn');
+      const confirmBtn = document.getElementById('confirmBtn');
+      if (continueBtn) continueBtn.textContent = 'Lanjutkan';
+      if (confirmBtn) confirmBtn.textContent = 'Gass';
+    } catch(e) {
+      console.warn('Button text setting failed', e);
+    }
 
-    // show modal first time and start recurring
-    showNoticeModal(); startRecurringNoticeModal();
+    // Show modal first time and start recurring
+    showNoticeModal();
+    startRecurringNoticeModal();
 
-    // initial playlist loading or hash handling
+    // Initial playlist loading or hash handling
     const hash = window.location.hash || '';
     if(hash.startsWith('#play-')){
-      const category = hash.replace('#play-',''); const gist = COLLECTION_GIST_URLS[category]; if(gist) await loadPlaylistAndPlay(gist,category); else await loadHomepageVideo(); history.replaceState(null,null,' ');
+      const category = hash.replace('#play-',''); 
+      const gist = COLLECTION_GIST_URLS[category]; 
+      if(gist) await loadPlaylistAndPlay(gist,category); 
+      else await loadHomepageVideo(); 
+      history.replaceState(null,null,' ');
     } else if(hash.startsWith('#dl=')){
-      const b64 = hash.slice(4).replace(/\s+/g,''); const decoded = decodeSafeBase64(b64); if(decoded && isValidHttpUrl(decoded)) safeRenderHomepageVideo(decoded); else await loadHomepageVideo(); history.replaceState(null,null,' ');
-    } else { await loadHomepageVideo(); }
+      const b64 = hash.slice(4).replace(/\s+/g,''); 
+      const decoded = decodeSafeBase64(b64); 
+      if(decoded && isValidHttpUrl(decoded)) safeRenderHomepageVideo(decoded); 
+      else await loadHomepageVideo(); 
+      history.replaceState(null,null,' ');
+    } else { 
+      await loadHomepageVideo(); 
+    }
 
-    // wire buttons
-    document.getElementById('continueBtn').addEventListener('click',function(e){ e.preventDefault(); handleNoticeResponse(); });
-    document.getElementById('confirmBtn').addEventListener('click',function(e){ e.preventDefault(); handleNoticeResponse(); });
-    document.getElementById('nextRandomBtn').addEventListener('click', function(){ playNextRandomVideoFromHomepage(); });
+    // Wire buttons with proper event listeners
+    try {
+      const continueBtn = document.getElementById('continueBtn');
+      const confirmBtn = document.getElementById('confirmBtn');
+      const nextRandomBtn = document.getElementById('nextRandomBtn');
+      
+      if (continueBtn) {
+        continueBtn.addEventListener('click', function(e) { 
+          e.preventDefault(); 
+          console.log('Continue button clicked');
+          handleNoticeResponse(); 
+        });
+      }
+      
+      if (confirmBtn) {
+        confirmBtn.addEventListener('click', function(e) { 
+          e.preventDefault(); 
+          console.log('Confirm button clicked');
+          handleNoticeResponse(); 
+        });
+      }
+      
+      if (nextRandomBtn) {
+        nextRandomBtn.addEventListener('click', function() {
+          console.log('Next random button clicked');
+          playNextRandomVideoFromHomepage(); 
+        });
+      }
+      
+      console.log('All event listeners wired successfully');
+    } catch(e) {
+      console.error('Event listener setup failed:', e);
+    }
   });
 
   </script>
