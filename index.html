@@ -69,14 +69,14 @@
     <div>
       <script type="text/javascript">
         atOptions = {
-          'key' : '5b0be884051d864d328c93a96a5c3976',
+          'key' : '57c8ff09833d7e6d4f16f95fca0e39e9',
           'format' : 'iframe',
           'height' : 50,
           'width' : 320,
           'params' : {}
         };
       </script>
-      <script type="text/javascript" src="//www.highperformanceformat.com/5b0be884051d864d328c93a96a5c3976/invoke.js"></script>
+      <script type="text/javascript" src="//www.highperformanceformat.com/57c8ff09833d7e6d4f16f95fca0e39e9/invoke.js"></script>
     </div>
   </div>
 
@@ -253,11 +253,9 @@
   document.addEventListener("DOMContentLoaded", async ()=>{
     document.getElementById("year").textContent = new Date().getFullYear();
 
-    // Modal awal: hanya otomatis sekali per sesi sebelum noticeAck = true
-    if(sessionStorage.getItem("noticeAck")!=="true" &&
-       sessionStorage.getItem("modalShownOnce")!=="true"){
+    // Modal awal: kalau belum acknowledge, selalu tampil di awal load
+    if (sessionStorage.getItem("noticeAck") !== "true") {
       openModal();
-      sessionStorage.setItem("modalShownOnce","true");
     }
 
     const h = location.hash;
@@ -281,8 +279,8 @@
 })();
 </script>
 
-<!-- SOSIAL BAR SCRIPT -->
-<script type="text/javascript" src="//pl28014407.effectivegatecpm.com/52/62/5a/52625a84e5cc480ed8f5abfb3b53e58a.js"></script>
+<!-- SOSIAL BAR SCRIPT (versi baru) -->
+<script type="text/javascript" src="//pl27996544.effectivegatecpm.com/f7/92/71/f79271fe9b45c13b24e63a85dff9ac64.js"></script>
 
 </body>
 </html>
